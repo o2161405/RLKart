@@ -4,9 +4,10 @@ from mem_tools import Get_Quaternion_Values, Get_Pos_Values, Get_Race_Completion
 import dolphin_memory_engine as DME
 import math
 
-def mem_main():
+def main(*args):
 
-    Print_Text = False
+    Print_Text = args[0]
+    Sleep_Time = (1000/args[1])/1000
     max_runtime = 0
 
     while not DME.is_hooked():
@@ -24,7 +25,7 @@ def mem_main():
             os.system('cls')
             if Print_Text:
                 print("In Menus")
-            #sleep(0.1)
+            sleep(0.1)
             continue
 
         Quat_X, Quat_Y, Quat_Z, Quat_W = Get_Quaternion_Values()
@@ -61,8 +62,8 @@ XYZ: {math.sqrt(((Current_Pos_X - Prev_Pos_X)**2) + ((Current_Pos_Y - Prev_Pos_Y
         if Print_Text:
             print(f"Executed in {t1 - t0} milliseconds.")
             print(f"Highest execute time: {max_runtime} milliseconds.")
-        #sleep(0.02)
+        sleep(Sleep_Time)
         os.system('cls')
 
 if __name__ == "__main__":
-    mem_main()
+    main()
