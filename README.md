@@ -10,6 +10,6 @@
  # Tracks
  - [ ] SNES Mario Circuit 3
 
-
-
-
+# Requirements
+- Any recent version of Python **below** 3.12
+- pip install -r requirements.txt
