@@ -1,10 +1,10 @@
 from time import sleep, time_ns
 import os
-from mem_tools import *
+from mem_tools import Get_Quaternion_Values, Get_Pos_Values
 import dolphin_memory_engine as DME
 import math
 
-if __name__ == "__main__":
+def mem_main():
 
     Print_Text = True
     max_runtime = 0
@@ -54,3 +54,6 @@ XYZ: {math.sqrt(((Current_Pos_X - Prev_Pos_X)**2) + ((Current_Pos_Y - Prev_Pos_Y
             print(f"Highest execute time: {max_runtime} milliseconds.")
         sleep(0.1)
         os.system('cls')
+
+if __name__ == "__main__":
+    mem_main()
