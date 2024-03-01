@@ -1,5 +1,5 @@
 # DeepMKW
- A wrapper around Dolphin for reading memory and computing raycasts for Deep Learning applications
+ A wrapper around Dolphin for reading memory and externally computing raycasts for Deep Learning applications
 
 **Todo:**
  - [x] Read Dolphin memory
@@ -10,6 +10,8 @@
  # Tracks
  - [ ] SNES Mario Circuit 3
 
-
-
-
+# Requirements
+- https://github.com/SwareJonge/Dolphin-Lua-Core
+- Windows 10/11
+- Any recent version of Python **below** 3.12
+- pip install -r requirements.txt
