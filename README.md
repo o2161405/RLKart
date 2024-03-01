@@ -8,9 +8,7 @@
  - [ ] Machine Learning framework
  
  # Tracks
-| Track | Status |
-|---|---|---|---|
-| SNES Mario Circuit 3 |:black_square_button:|
+ [x] SNES Mario Circuit 3
 
 
 
