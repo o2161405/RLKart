@@ -8,7 +8,7 @@
  - [ ] Machine Learning framework
  
  # Tracks
- - [] SNES Mario Circuit 3
+ - [ ] SNES Mario Circuit 3
 
 
 
