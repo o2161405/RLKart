@@ -1,5 +1,5 @@
 # DeepMKW
- A wrapper around Dolphin for reading memory and computing raycasts for Deep Learning applications
+ A wrapper around Dolphin for reading memory and externally computing raycasts for Deep Learning applications
 
 **Todo:**
  - [x] Read Dolphin memory
