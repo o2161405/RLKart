@@ -9,10 +9,14 @@ import dolphin_memory_engine as DME
 'write_bytes', 'write_double', 'write_float', 'write_word']
 """
 
+# WE CAN RETURN THE FUNCTION'S VALUES INSIDE THE TRY BLOCK BUT IT WORKS FOR THE MOMENT.
+# THIS SAVES A VARIABLE. DO IT LATER.
+
 cache = {}
 Quaternion_Pointers = [0x20, 0x0, 0x24, 0x90, 0x4]
 Prev_Pos_Pointers = [0xC, 0x10, 0x0, 0x0, 0x8, 0x90]
 Current_Pos_Pointers = [0xC, 0x10, 0x0, 0x0, 0x8, 0x90, 0x4]
+Race_Completion_Pointers = [0xC, 0x0]
 
 def Get_Quaternion_Values():
 
@@ -25,15 +29,8 @@ def Get_Quaternion_Values():
                 case "E":
                     #print("NA Version - Using 0x809BD110")
                     cache["quat_region_address"] = 0x809BD110
-                case "J":
-                    #print("JP Version - Using 0x809C0958")
-                    cache["quat_region_address"] = 0x809C0958
-                case "K":
-                    #print("KR Version - Using 0x809AFF3")
-                    cache["quat_region_address"] = 0x809AFF38
                 case other:
-                    #print("Cannot detect game version, defaulting to PAL..")
-                    cache["quat_region_address"] = 0x809C18F8
+                    return -1
 
         return cache["quat_region_address"]
 
@@ -59,13 +56,8 @@ def Get_Pos_Values():
                         cache["prev_pos"] = 0x809C18F8
                     case "E":
                         cache["prev_pos"] = 0x809BD110
-                    case "J":
-                        cache["prev_pos"] = 0x809C0958
-                    case "K":
-                        cache["prev_pos"] = 0x809AFF38
                     case other:
-                        # Defaulting to PAL
-                        cache["prev_pos"] = 0x809C18F8
+                        return -1
 
             return cache["prev_pos"]
 
@@ -84,3 +76,30 @@ def Get_Pos_Values():
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x68])),
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x6C])),
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x70]))]
+
+
+def Get_Race_Completion():
+
+    def Get_Race_Completion_Region_Address():
+        if not cache.get("race_completion"):
+            match str(DME.read_bytes(int(0x80000000), 6))[5]:
+                case "P":
+                    #print("PAL Version - Using 0x809C18F8")
+                    cache["race_completion"] = 0x809BD730
+                case "E":
+                    #print("NA Version - Using 0x809BD110")
+                    cache["race_completion"] = 0x809B8F70
+                case other:
+                    return -1
+
+        return cache["race_completion"]
+
+    race_completion_offset = Get_Race_Completion_Region_Address()
+    
+    # In Menus check
+    try:
+        race_completion_addr = DME.follow_pointers(int(race_completion_offset), Race_Completion_Pointers)
+    except RuntimeError:
+        return ""
+
+    return DME.read_float(DME.follow_pointers(int(race_completion_addr), [0xC]))
