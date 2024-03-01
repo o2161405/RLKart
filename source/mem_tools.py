@@ -12,6 +12,8 @@ import dolphin_memory_engine as DME
 # WE CAN RETURN THE FUNCTION'S VALUES INSIDE THE TRY BLOCK BUT IT WORKS FOR THE MOMENT.
 # THIS SAVES A VARIABLE. DO IT LATER.
 
+# Also, could save time by reusing the pointers from Prev_Pos_Pointers and just adding 0x4 to get the current pointers.
+
 cache = {}
 Quaternion_Pointers = [0x20, 0x0, 0x24, 0x90, 0x4]
 Prev_Pos_Pointers = [0xC, 0x10, 0x0, 0x0, 0x8, 0x90]
