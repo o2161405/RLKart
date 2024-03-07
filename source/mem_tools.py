@@ -79,7 +79,6 @@ def Get_Pos_Values():
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x6C])),
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x70]))]
 
-
 def Get_Race_Completion():
 
     def Get_Race_Completion_Region_Address():
