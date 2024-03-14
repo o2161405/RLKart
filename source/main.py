@@ -1,6 +1,7 @@
 from mem_main import get_game_state
 import dolphin_memory_engine as DME
 from time import sleep
+from mesh import get_raycasts
 
 
 while not DME.is_hooked():
@@ -12,9 +13,8 @@ while True:
 	game_state = get_game_state(False)
 
 	if game_state != None:
-		#agent_world_info = game_state[0:3]
-		agent_world_info = game_state[3]
-		print(agent_world_info)
+		positions = game_state[4]
+		print(get_raycasts(positions[0], positions[1], positions[2]))
 
 	sleep(0.02)
 
@@ -34,3 +34,4 @@ while True:
 # - Number of Mushrooms
 # - Countdown till wheelie expires? Humans basically have this with the audio cue so it'll be useful.
 # - Differentiate between road/offroad/wall when doing angled raycasts/ when character is on an angled slope
+# - Raycasts don't change rotation with player (North will always point north no matter what for example)
