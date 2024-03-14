@@ -12,7 +12,8 @@ while True:
 	game_state = get_game_state(False)
 
 	if game_state != None:
-		agent_world_info = game_state[0:3]
+		#agent_world_info = game_state[0:3]
+		agent_world_info = game_state[3]
 		print(agent_world_info)
 
 	sleep(0.02)
