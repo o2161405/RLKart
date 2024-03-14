@@ -3,7 +3,7 @@
 
 **Todo:**
  - [x] Read Dolphin memory
- - [ ] Import track (rMC3 planned only, PoC)
+ - [x] Import track (rMC3 planned only, PoC)
  - [ ] Compute Raycasts
  - [ ] Machine Learning framework
  
