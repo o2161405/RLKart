@@ -21,6 +21,9 @@ def get_game_state(readable_text):
     oil_distance_2_Z = round(Current_Pos_Z + 17370)
     hit_oil_2 = (False, True)[round(math.sqrt(abs(oil_distance_2_X)**2 + abs(oil_distance_2_Z)**2)) < 300]
 
+    boost_pad_distance_X = round(Current_Pos_X + 13750)
+    boost_pad_distance_Z = round(Current_Pos_Z - 9792)
+
     if [round(Current_Pos_X, 3), round(Current_Pos_Y, 3), round(Current_Pos_Z, 3)] == [0.0, 0.0, 0.0]:
         return None
 
@@ -40,7 +43,9 @@ XYZ: {math.sqrt(((Current_Pos_X - Prev_Pos_X)**2) + ((Current_Pos_Y - Prev_Pos_Y
 
     else:
         return [
-                [[oil_distance_1_X, oil_distance_1_Z, hit_oil_1], [oil_distance_2_X, oil_distance_2_Z, hit_oil_2]],
+                [[oil_distance_1_X, oil_distance_1_Z, hit_oil_1],
+                [oil_distance_2_X, oil_distance_2_Z, hit_oil_2],
+                [boost_pad_distance_X, boost_pad_distance_Z]],
                 round(math.sqrt(((Current_Pos_X - Prev_Pos_X)**2) + ((Current_Pos_Z - Prev_Pos_Z)**2)), 1), #XZ Speed
                 round(Race_Completion, 3), # Race Completion
                #round(Current_Pos_Y  - Prev_Pos_Y, 1), # Y Speed

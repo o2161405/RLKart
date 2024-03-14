@@ -30,4 +30,6 @@ while True:
 # - MT charge %age
 # - Race countdown, 3.0 -> 0.0 then -1
 # - Normalize RaceCompetition to 0-1?
+# - Number of Mushrooms
+# - Countdown till wheelie expires? Humans basically have this with the audio cue so it'll be useful.
 # - Differentiate between road/offroad/wall when doing angled raycasts/ when character is on an angled slope
