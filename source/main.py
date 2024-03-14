@@ -14,7 +14,8 @@ while True:
 
 	if game_state != None:
 		positions = game_state[4]
-		print(get_raycasts(positions[0], positions[1], positions[2]))
+		print(game_state[0:3])
+		#print(get_raycasts(positions[0], positions[1], positions[2]))
 
 	sleep(0.02)
 
