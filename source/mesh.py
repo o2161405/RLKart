@@ -2,7 +2,7 @@ import trimesh
 import numpy as np
 import time
 
-mesh = trimesh.load('../a.obj', force='mesh')
+mesh = trimesh.load('../model/a.obj', force='mesh')
 
 ray_directions = np.array([[0, 0, -1],
 			   [0, 0, 1],
