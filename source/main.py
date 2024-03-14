@@ -18,11 +18,6 @@ while True:
 
 	sleep(0.02)
 
-
-# Output example:
-# [66.3, -1.8, 14116.451, 3272.538, -75.384, 4.384]
-# Speed XZ, Speed Y, X, Y, and Z coords, Race Completion
-
 # We're doing 0:3 for the agent's view because index 4 and 5 are the quaternion and position info.
 # Those two things aren't useful for the AI agent to have, but we still need
 # them in the output for when we do the raycasting stuff.
