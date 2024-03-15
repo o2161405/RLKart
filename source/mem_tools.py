@@ -109,4 +109,4 @@ def Get_Countdown():
     return DME.read_bytes(DME.follow_pointers(int(0x809BD730), [0x20]), 4)
 
 def Get_MT_Charge():
-    return round(int(DME.read_bytes(DME.follow_pointers(int(0x809C18F8), [0xC, 0x10, 0x0, 0x10, 0x10, 0xFE]), 2).hex(), 16) / 270, 3)
+    return round(int(DME.read_bytes(DME.follow_pointers(int(0x809C18F8), [0xC, 0x10, 0x0, 0x10, 0x10, 0xFE]), 2).hex(), 16) / 270, 2)

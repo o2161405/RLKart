@@ -2,6 +2,7 @@ from mem_main import get_game_state
 import dolphin_memory_engine as DME
 from time import sleep
 from mesh import get_raycasts
+import os
 
 while not DME.is_hooked():
     print("Not hooked..")
@@ -15,6 +16,8 @@ while True:
 		continue
 
 	print(game_state)
+	sleep(0.05)
+	os.system('cls')
 
 # We're doing 0:3 for the agent's view because index 4 and 5 are the quaternion and position info.
 # Those two things aren't useful for the AI agent to have, but we still need
