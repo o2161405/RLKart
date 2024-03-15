@@ -5,11 +5,12 @@ from time import sleep
 import os
 from mesh_test import calculate_intersect_locations
 from pygame_ui import draw_grid_with_intersect_locations
+import numpy as np
 
 while not DME.is_hooked():
     print("Not hooked..")
     DME.hook()
-    sleep(0.5)
+    sleep(0.2)
 
 while True:
 
@@ -24,6 +25,8 @@ while True:
 	inbetween_gap = 2
 
 	intersect_locations = calculate_intersect_locations(positions=game_state["Current_Positions"], inbetween_gap=inbetween_gap, definition=definition)
+	intersect_filtered = [round(i[1]) for i in intersect_locations]
+	intersect_filtered = np.array(intersect_filtered).reshape(definition, definition)
 
 	""" Code for adding new things to the overlay:
 	numbers = {0}

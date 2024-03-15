@@ -3,7 +3,7 @@ import numpy as np
 import pygame
 #from pygame_ui import draw_grid_with_intersect_locations
 
-mesh = trimesh.load('../model/final4.obj', force='mesh')
+mesh = trimesh.load('../model/untitled.obj', force='mesh')
 
 def calculate_intersect_locations(positions, inbetween_gap, definition):
 

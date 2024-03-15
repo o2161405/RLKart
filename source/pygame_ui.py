@@ -36,9 +36,9 @@ def draw_grid_with_intersect_locations(intersect_locations, grid_size, cell_size
                         cell_color = (145, 103, 65)
                     case 10:
                         cell_color = (180, 180, 180)
-                    case 10.94:
+                    case 11:
                         cell_color = (255, 255, 0)
-                    case 12.87:
+                    case 12:
                         cell_color = (0, 255, 0)
                     case 13:
                         cell_color = (0, 0, 0)
