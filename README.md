@@ -1,4 +1,4 @@
-# DeepMKW
+# DeepMKW (WIP)
  A wrapper around Dolphin for reading memory and externally computing raycasts for Deep Learning
 
 **Todo:**
