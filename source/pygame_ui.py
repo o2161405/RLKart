@@ -2,10 +2,12 @@ import pygame
 
 pygame.init()
 
-OFFROAD = (145, 103, 65)
-ROAD = (180, 180, 180)
-WALL = (0, 0, 0)
-UNKNOWN = (255, 0, 0)
+#OFFROAD = (145, 103, 65)
+#ROAD = (180, 180, 180)
+#WALL = (0, 0, 0)
+#PIPE = (0, 255, 0)
+#BOOST = (255, 255, 0)
+#UNKNOWN = (255, 0, 0)
 
 def draw_grid_with_intersect_locations(intersect_locations, grid_size=20, cell_size=10):
 
@@ -31,13 +33,19 @@ def draw_grid_with_intersect_locations(intersect_locations, grid_size=20, cell_s
                 # Set the cell color based on the value
                 match round(cell_value, 2):
                     case 0:
-                        cell_color = OFFROAD
+                        cell_color = (145, 103, 65)
                     case 10:
-                        cell_color = ROAD
+                        cell_color = (180, 180, 180)
+                    case 10.94:
+                        cell_color = (255, 255, 0)
+                    case 12.87:
+                        cell_color = (0, 255, 0)
                     case 13:
-                        cell_color = WALL
+                        cell_color = (0, 0, 0)
+                    case 17:
+                        cell_color = (255, 0, 0)
                     case other:
-                        cell_color = UNKNOWN
+                        cell_color = (0, 0, 0)
 
                 # Draw the cell with the chosen color
                 pygame.draw.rect(screen, cell_color, (x, y, CELL_SIZE, CELL_SIZE))
@@ -50,7 +58,7 @@ def draw_grid_with_intersect_locations(intersect_locations, grid_size=20, cell_s
                 running = False"""
 
     # Clear the screen
-    #screen.fill((255, 255, 255))
+    screen.fill((255, 255, 255))
 
     # Draw the grid
     draw_grid(intersect_locations)

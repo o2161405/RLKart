@@ -44,10 +44,10 @@ def Get_Quaternion_Values():
     except RuntimeError:
         return ""
 
-    return (DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF0])),
+    return [DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF0])),
             DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF4])),
             DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF8])),
-            DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xFC])))
+            DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xFC]))]
 
 def Get_Pos_Values():
 
