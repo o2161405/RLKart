@@ -44,10 +44,10 @@ def Get_Quaternion_Values():
     except RuntimeError:
         return ""
 
-    return [DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF0])),
+    return (DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF0])),
             DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF4])),
             DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xF8])),
-            DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xFC]))]
+            DME.read_float(DME.follow_pointers(int(quaternions_addr), [0xFC])))
 
 def Get_Pos_Values():
 
@@ -72,12 +72,12 @@ def Get_Pos_Values():
     except RuntimeError:
         return ""
 
-    return [DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x18])),
+    return [(DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x18])),
             DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x1C])),
-            DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x20])),
-            DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x68])),
+            DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x20]))),
+            (DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x68])),
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x6C])),
-            DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x70]))]
+            DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x70])))]
 
 def Get_Race_Completion():
 
@@ -104,3 +104,9 @@ def Get_Race_Completion():
         return ""
 
     return DME.read_float(DME.follow_pointers(int(race_completion_addr), [0xC]))
+
+def Get_Countdown():
+    return DME.read_bytes(DME.follow_pointers(int(0x809BD730), [0x20]), 4)
+
+def Get_MT_Charge():
+    return round(int(DME.read_bytes(DME.follow_pointers(int(0x809C18F8), [0xC, 0x10, 0x0, 0x10, 0x10, 0xFE]), 2).hex(), 16) / 270, 3)
