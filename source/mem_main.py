@@ -17,16 +17,16 @@ def get_game_state():
     XZ_Speed = round(math.sqrt(((Current_Positions[0] - Previous_Positions[0])**2) +
                                                    ((Current_Positions[2] - Previous_Positions[2])**2)), 1)
 
-    First_Oil_Distance_X = Current_Positions[0] - 3200
-    First_Oil_Distance_Z = Current_Positions[2] - 10930
-    Player_Hit_First_Oil = math.sqrt(abs(First_Oil_Distance_X)**2 + abs(First_Oil_Distance_Z)**2) < 300
+    #First_Oil_Distance_X = Current_Positions[0] - 3200
+    #First_Oil_Distance_Z = Current_Positions[2] - 10930
+    #Player_Hit_First_Oil = math.sqrt(abs(First_Oil_Distance_X)**2 + abs(First_Oil_Distance_Z)**2) < 300
 
-    Second_Oil_Distance_X = Current_Positions[0] - 14700
-    Second_Oil_Distance_Z = Current_Positions[2] + 17370
-    Player_Hit_Second_Oil = math.sqrt(abs(Second_Oil_Distance_X)**2 + abs(Second_Oil_Distance_Z)**2) < 300
+    #Second_Oil_Distance_X = Current_Positions[0] - 14700
+    #Second_Oil_Distance_Z = Current_Positions[2] + 17370
+    #Player_Hit_Second_Oil = math.sqrt(abs(Second_Oil_Distance_X)**2 + abs(Second_Oil_Distance_Z)**2) < 300
     
-    Boost_Pad_Distance_X = Current_Positions[0] + 13750
-    Boost_Pad_Distance_Z = Current_Positions[2] - 9792
+    #Boost_Pad_Distance_X = Current_Positions[0] + 13750
+    #Boost_Pad_Distance_Z = Current_Positions[2] - 9792
 
     Countdown = int(Get_Countdown().hex(), 16)
     Countdown = round((240 - Countdown) / 60, 2)
@@ -45,14 +45,14 @@ def get_game_state():
             "Current_Positions": Current_Positions,
             "Race_Completion": Race_Completion,
             "XZ_Speed": XZ_Speed,
-            "First_Oil_Distance_X": First_Oil_Distance_X,
-            "First_Oil_Distance_Z": First_Oil_Distance_Z,
-            "Player_Hit_First_Oil": Player_Hit_First_Oil,
-            "Second_Oil_Distance_X": Second_Oil_Distance_X,
-            "Second_Oil_Distance_Z": Second_Oil_Distance_Z,
-            "Player_Hit_Second_Oil": Player_Hit_Second_Oil,
-            "Boost_Pad_Distance_X": Boost_Pad_Distance_X,
-            "Boost_Pad_Distance_Z": Boost_Pad_Distance_Z,
+            #"First_Oil_Distance_X": First_Oil_Distance_X,
+            #"First_Oil_Distance_Z": First_Oil_Distance_Z,
+            #"Player_Hit_First_Oil": Player_Hit_First_Oil,
+            #"Second_Oil_Distance_X": Second_Oil_Distance_X,
+            #"Second_Oil_Distance_Z": Second_Oil_Distance_Z,
+            #"Player_Hit_Second_Oil": Player_Hit_Second_Oil,
+            #"Boost_Pad_Distance_X": Boost_Pad_Distance_X,
+            #"Boost_Pad_Distance_Z": Boost_Pad_Distance_Z,
             "Countdown": Countdown,
             "MT_Charge": MT_Charge}
 
