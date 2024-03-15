@@ -72,12 +72,12 @@ def Get_Pos_Values():
     except RuntimeError:
         return ""
 
-    return [(DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x18])),
+    return [[DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x18])),
             DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x1C])),
-            DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x20]))),
-            (DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x68])),
+            DME.read_float(DME.follow_pointers(int(prev_pos_addr), [0x20]))],
+            [DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x68])),
             DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x6C])),
-            DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x70])))]
+            DME.read_float(DME.follow_pointers(int(current_pos_addr), [0x70]))]]
 
 def Get_Race_Completion():
 

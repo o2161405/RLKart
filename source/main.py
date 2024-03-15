@@ -3,6 +3,8 @@ import dolphin_memory_engine as DME
 from time import sleep
 from mesh import get_raycasts
 import os
+from mesh_test import calculate_intersect_locations
+from pygame_ui import draw_grid_with_intersect_locations
 
 while not DME.is_hooked():
     print("Not hooked..")
@@ -15,9 +17,12 @@ while True:
 	if game_state == None:
 		continue
 
-	print(game_state)
+	intersect_locations = calculate_intersect_locations(positions=game_state["Current_Positions"], inbetween_gap=3, definition=65)
+	#print(intersect_locations)
+	#print(len(intersect_locations))
+	draw_grid_with_intersect_locations(intersect_locations=intersect_locations, grid_size=65, cell_size=10)
 	sleep(0.05)
-	os.system('cls')
+	#os.system('cls')
 
 # We're doing 0:3 for the agent's view because index 4 and 5 are the quaternion and position info.
 # Those two things aren't useful for the AI agent to have, but we still need

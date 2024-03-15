@@ -1,74 +1,68 @@
 import trimesh
 import numpy as np
-import time
 import pygame
+#from pygame_ui import draw_grid_with_intersect_locations
 
 mesh = trimesh.load('../model/a_final.obj', force='mesh')
 
-#X, Y, Z = [-12203.0, 1060.51611328125, -2954.655029296875]
-X, Y, Z = [-12203, 1061, -2955]
-X, Y, Z = X/100, Y/100, Z/100
+def calculate_intersect_locations(positions, inbetween_gap=3, definition=65):
 
-inbetween_gap = 3
-definition = 65 # 15x15 grid
+	#X, Y, Z = [-12203.0, 1060.51611328125, -2954.655029296875]
+	X, Y, Z = round(positions[0]), round(positions[1]), round(positions[2])
+	X, Y, Z = X/100, Y/100, Z/100
 
-ray_origins = np.array([[0, 0, 0]]) # We need at least 1 element in here
-ray_offset = (((definition * inbetween_gap) / 2) - (inbetween_gap / 2))
+	ray_origins = np.array([[0, 0, 0]]) # We need at least 1 element in here
+	ray_offset = (((definition * inbetween_gap) / 2) - (inbetween_gap / 2))
 
-t0 = time.time()
+	rays = []
+	for i in range(1, definition + 1):
+		for j in range(1, definition + 1):
+			new_ray = np.array([
+				(X + (i * inbetween_gap) - inbetween_gap) - ray_offset,
+				Y + 10,
+				(Z + (j * inbetween_gap) - inbetween_gap) - ray_offset,
+				])
+			rays.append(new_ray)
+	ray_origins = np.vstack((ray_origins, rays))
 
-rays = []
-for i in range(1, definition + 1):
-	for j in range(1, definition + 1):
-		new_ray = np.array([
-			(X + (i * inbetween_gap) - inbetween_gap) - ray_offset,
-			Y + 10,
-			(Z + (j * inbetween_gap) - inbetween_gap) - ray_offset,
-			])
-		rays.append(new_ray)
-ray_origins = np.vstack((ray_origins, rays))
+	"""locations, index_ray, index_tri = mesh.ray.intersects_location(
+	        ray_origins=ray_origins,
+	        ray_directions=ray_directions)"""
 
-"""locations, index_ray, index_tri = mesh.ray.intersects_location(
-        ray_origins=ray_origins,
-        ray_directions=ray_directions)"""
+	ray_origins = ray_origins[1:]
+	ray_directions = np.tile(np.array([0, -1, 0]), (ray_origins.shape[0], 1))
 
-ray_origins = ray_origins[1:]
-ray_directions = np.tile(np.array([0, -1, 0]), (ray_origins.shape[0], 1))
+	return mesh.ray.intersects_id(
+		ray_origins=ray_origins,
+		ray_directions=ray_directions,
+		multiple_hits=False,	
+		max_hits=1,
+		return_locations=True)[2]
 
-intersect_locations = mesh.ray.intersects_id(
-        ray_origins=ray_origins,
-        ray_directions=ray_directions,
-        multiple_hits=False,	
-        max_hits=1,
-        return_locations=True)[2]
-
-t1 = time.time()
+#draw_grid_with_intersect_locations(intersect_locations, grid_size=definition, cell_size=10)
 
 #ray_visualize = trimesh.load_path(np.hstack((ray_origins,
                                              #ray_origins + ray_directions*20.0)).reshape(len(ray_origins), 2, 3))
 #for i in intersect_locations:
 	#print(i)
 #print(len(intersect_locations))
-print((t1-t0)*1000)
 
 #mesh.unmerge_vertices()
 #mesh.visual.face_colors = [255,255,255,255]
 #scene = trimesh.Scene([mesh, ray_visualize])
 #scene.show()
-
+"""
 pygame.init()
 
 OFFROAD = (145, 103, 65)
 ROAD = (180, 180, 180)
 WALL = (0, 0, 0)
-UNKNOWN = (255, 255, 255)
+UNKNOWN = (255, 0, 0)
 
 GRID_SIZE = definition
 CELL_SIZE = 10
-
 WINDOW_SIZE = (GRID_SIZE*CELL_SIZE, GRID_SIZE*CELL_SIZE)
 screen = pygame.display.set_mode(WINDOW_SIZE)
-pygame.display.set_caption(f"{definition}x{definition} Grid")
 
 def draw_grid(grid_1d):
     for row in range(GRID_SIZE):
@@ -111,6 +105,4 @@ while running:
     draw_grid(intersect_locations)
 
     # Update the display
-    pygame.display.flip()
-
-pygame.quit()
+    pygame.display.flip()"""
