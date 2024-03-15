@@ -1,5 +1,5 @@
 # RLKart (WIP)
- A wrapper around Dolphin for reading memory and externally computing raycasts for Deep Learning
+ A wrapper around Dolphin for reading memory and externally computing raycasts for Deep Learning, made for MKW
 
 **Todo:**
  - [x] Read Dolphin memory
