@@ -8,7 +8,8 @@ mesh = trimesh.load('../model/final4.obj', force='mesh')
 def calculate_intersect_locations(positions, inbetween_gap=3, definition=65):
 
 	#X, Y, Z = [-12203.0, 1060.51611328125, -2954.655029296875]
-	X, Y, Z = round(positions[0]), round(positions[1]), round(positions[2])
+	#X, Y, Z = round(positions[0]), round(positions[1]), round(positions[2])
+	X, Y, Z = positions
 	X, Y, Z = X/100, Y/100, Z/100
 
 	ray_origins = np.array([[0, 0, 0]]) # We need at least 1 element in here
