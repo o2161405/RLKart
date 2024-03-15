@@ -5,26 +5,28 @@ import pygame
 
 mesh = trimesh.load('../model/final4.obj', force='mesh')
 
-def calculate_intersect_locations(positions, inbetween_gap=3, definition=65):
+def calculate_intersect_locations(positions, inbetween_gap, definition):
 
 	#X, Y, Z = [-12203.0, 1060.51611328125, -2954.655029296875]
-	#X, Y, Z = round(positions[0]), round(positions[1]), round(positions[2])
-	X, Y, Z = positions
-	X, Y, Z = X/100, Y/100, Z/100
+	X, Y, Z = round(positions[0])/100, (round(positions[1])/100) + 10, round(positions[2])/100
+	#X, Y, Z = positions
+	#X, Y, Z = X/100, Y/100, Z/100
 
-	ray_origins = np.array([[0, 0, 0]]) # We need at least 1 element in here
+	#ray_origins = np.array([[0, 0, 0]]) # We need at least 1 element in here
 	ray_offset = (((definition * inbetween_gap) / 2) - (inbetween_gap / 2))
 
 	rays = []
 	for i in range(1, definition + 1):
+		X_Calc = (X + (i * inbetween_gap) - inbetween_gap) - ray_offset
 		for j in range(1, definition + 1):
 			new_ray = np.array([
-				(X + (i * inbetween_gap) - inbetween_gap) - ray_offset,
-				Y + 10,
+				#(X + (i * inbetween_gap) - inbetween_gap) - ray_offset,
+				X_Calc,
+				Y,
 				(Z + (j * inbetween_gap) - inbetween_gap) - ray_offset,
 				])
 			rays.append(new_ray)
-	ray_origins = np.vstack((ray_origins, rays))
+	ray_origins = np.vstack((np.array([[0, 0, 0]]), rays))
 
 	"""locations, index_ray, index_tri = mesh.ray.intersects_location(
 	        ray_origins=ray_origins,

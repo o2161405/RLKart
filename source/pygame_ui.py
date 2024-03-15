@@ -9,7 +9,7 @@ pygame.init()
 #BOOST = (255, 255, 0)
 #UNKNOWN = (255, 0, 0)
 
-def draw_grid_with_intersect_locations(intersect_locations, grid_size=20, cell_size=10):
+def draw_grid_with_intersect_locations(intersect_locations, grid_size, cell_size):
 
     GRID_SIZE = grid_size
     CELL_SIZE = cell_size

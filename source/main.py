@@ -2,11 +2,9 @@ from mem_main import get_game_state
 import dolphin_memory_engine as DME
 import time
 from time import sleep
-#from mesh import get_raycasts
 import os
 from mesh_test import calculate_intersect_locations
 from pygame_ui import draw_grid_with_intersect_locations
-import numpy as np
 
 while not DME.is_hooked():
     print("Not hooked..")
@@ -22,7 +20,10 @@ while True:
 	if game_state == None:
 		continue
 
-	intersect_locations = calculate_intersect_locations(positions=game_state["Current_Positions"], inbetween_gap=3, definition=65)
+	definition = 55
+	inbetween_gap = 2
+
+	intersect_locations = calculate_intersect_locations(positions=game_state["Current_Positions"], inbetween_gap=inbetween_gap, definition=definition)
 
 	""" Code for adding new things to the overlay:
 	numbers = {0}
@@ -36,7 +37,7 @@ while True:
 	#print(len(intersect_locations))
 
 	# Pygame Overlay
-	#draw_grid_with_intersect_locations(intersect_locations=intersect_locations, grid_size=65, cell_size=10)
+	#draw_grid_with_intersect_locations(intersect_locations=intersect_locations, grid_size=definition, cell_size=10)
 
 	print((time.time() - t0)*1000)
 
