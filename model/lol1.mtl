@@ -1,0 +1,52 @@
+# Blender 4.0.2 MTL File: '123312123123.blend'
+# www.blender.org
+
+newmtl a_blocktop
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/username/Downloads/Wii - Mario Kart Wii - SNES Mario Circuit 3 (2)/SNES Mario Circuit 3/m_color_block_top.png
+
+newmtl a_checkline
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/username/Downloads/Wii - Mario Kart Wii - SNES Mario Circuit 3 (2)/SNES Mario Circuit 3/m_check.png
+
+newmtl a_line
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/username/Downloads/Wii - Mario Kart Wii - SNES Mario Circuit 3 (2)/SNES Mario Circuit 3/m_enseki.png
+
+newmtl a_road
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/username/Downloads/Wii - Mario Kart Wii - SNES Mario Circuit 3 (2)/SNES Mario Circuit 3/m_road_dark1024.png
+
+newmtl a_road_lt
+Ns 250.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:/Users/username/Downloads/Wii - Mario Kart Wii - SNES Mario Circuit 3 (2)/SNES Mario Circuit 3/m_road_light1024.png

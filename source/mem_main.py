@@ -34,7 +34,7 @@ def get_game_state():
     MT_Charge = Get_MT_Charge()
 
     if Countdown < 0:
-        Countdown = -1
+        Countdown = 0
 
     # Detect if we're in the restart black screen when all values are nulled but it isn't technically the menu
     if Current_Positions == [0.0, 0.0, 0.0]:
