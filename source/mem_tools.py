@@ -110,3 +110,12 @@ def Get_Countdown():
 
 def Get_MT_Charge():
     return round(int(DME.read_bytes(DME.follow_pointers(int(0x809C18F8), [0xC, 0x10, 0x0, 0x10, 0x10, 0xFE]), 2).hex(), 16) / 270, 6)
+
+def Get_Shrooms():
+    try:
+        return int(DME.read_bytes(DME.follow_pointers(int(0x809C3618), [0x14, 0x90]), 4).hex(), 16)
+    except:
+        return 0
+
+def Get_Wheelie_Frames():
+    return int(DME.read_bytes(DME.follow_pointers(int(0x809C18F8), [0xC, 0x10, 0x0, 0x10, 0x10, 0x2A8]), 4).hex(), 16)

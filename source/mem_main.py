@@ -1,5 +1,5 @@
 from time import sleep, time_ns
-from mem_tools import Get_Quaternion_Values, Get_Pos_Values, Get_Race_Completion, Get_Countdown, Get_MT_Charge
+from mem_tools import Get_Quaternion_Values, Get_Pos_Values, Get_Race_Completion, Get_Countdown, Get_MT_Charge, Get_Shrooms, Get_Wheelie_Frames
 import dolphin_memory_engine as DME
 import math
 
@@ -14,8 +14,11 @@ def get_game_state():
     Current_Positions = Get_Pos_Values()[1]
 
     Race_Completion = round(Get_Race_Completion(), 3)
-    XZ_Speed = round(math.sqrt(((Current_Positions[0] - Previous_Positions[0])**2) +
-                                                   ((Current_Positions[2] - Previous_Positions[2])**2)), 1)
+    XZ_Speed = math.sqrt(((Current_Positions[0] - Previous_Positions[0])**2) +
+                                                   ((Current_Positions[2] - Previous_Positions[2])**2))
+
+    Shroom_Count = Get_Shrooms()
+    Wheelie_Frames = Get_Wheelie_Frames()
 
     #First_Oil_Distance_X = Current_Positions[0] - 3200
     #First_Oil_Distance_Z = Current_Positions[2] - 10930
@@ -54,7 +57,9 @@ def get_game_state():
             #"Boost_Pad_Distance_X": Boost_Pad_Distance_X,
             #"Boost_Pad_Distance_Z": Boost_Pad_Distance_Z,
             "Countdown": Countdown,
-            "MT_Charge": MT_Charge}
+            "MT_Charge": MT_Charge,
+            "Shrooms": Shroom_Count,
+            "Wheelie_Frames" : Wheelie_Frames}
 
 if __name__ == "__main__":
     get_game_state()

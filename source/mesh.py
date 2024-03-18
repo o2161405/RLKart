@@ -4,11 +4,11 @@ import time
 import math
 
 full_mesh = trimesh.load('../model/full_mesh.obj', force='mesh')
-road_mesh = trimesh.load('../model/lol1.obj', force='mesh')
+road_mesh = trimesh.load('../model/road_mesh.obj', force='mesh')
 
 MAX_DIST = 10000
 
-def mesh_normalized_ray_lengths(character_position=[0, 0, 0], ray_amount=1, ray_rotation=180, show_trimesh_ui=False):
+def mesh_normalized_ray_lengths(character_position=[0, 0, 0], ray_amount=1, ray_rotation=180, show_trimesh_ui=False) -> tuple:
 
 	def generate_rays(amount_per_360, rotation):
 		ray_directions = np.zeros((amount_per_360, 3))  # Pre-allocate array for all rays
@@ -32,7 +32,7 @@ def mesh_normalized_ray_lengths(character_position=[0, 0, 0], ray_amount=1, ray_
 		return ray_directions
 
 	ray_directions = generate_rays(ray_amount, ray_rotation)
-	origin = np.array([character_position[0]/100, (character_position[1]/100)+1, character_position[2]/100])
+	origin = np.array([[character_position[0]/100, (character_position[1]/100)+1, character_position[2]/100]])
 	ray_origins = np.tile(origin, (ray_directions.shape[0], 1))
 
 	full_mesh_intersect_points = full_mesh.ray.intersects_id(
@@ -41,6 +41,18 @@ def mesh_normalized_ray_lengths(character_position=[0, 0, 0], ray_amount=1, ray_
 	multiple_hits=False,
 	max_hits=1,
 	return_locations=True)[2]
+	road_mesh_intersect_points = road_mesh.ray.intersects_id(
+ray_origins=ray_origins,
+ray_directions=ray_directions,
+multiple_hits=False,
+max_hits=1,
+return_locations=True)[2]
+	offroad_check = int(road_mesh.ray.intersects_id(
+	ray_origins=origin,
+	ray_directions=np.array([[0, -1, 0]]),
+	multiple_hits=False,
+	max_hits=1,
+	return_locations=True)[2][0][1] < 0)
 
 	full_mesh_out = []
 	for i in full_mesh_intersect_points:
@@ -50,6 +62,14 @@ def mesh_normalized_ray_lengths(character_position=[0, 0, 0], ray_amount=1, ray_
 			continue
 		full_mesh_out.append(1)
 
+	road_mesh_out = []
+	for i in road_mesh_intersect_points:
+		output = math.sqrt((abs((i[0]*100) - character_position[0])**2) + (abs((i[2]*100) - character_position[2])**2))
+		if output < MAX_DIST:
+			road_mesh_out.append(round(output/MAX_DIST, 6))
+			continue
+		road_mesh_out.append(1)
+
 	if show_trimesh_ui:
 		full_mesh.unmerge_vertices()
 		# make mesh white
@@ -58,5 +78,5 @@ def mesh_normalized_ray_lengths(character_position=[0, 0, 0], ray_amount=1, ray_
 		scene = trimesh.Scene([full_mesh, ray_visualize])
 		scene.show()
 
-	return full_mesh_out
+	return full_mesh_out, road_mesh_out, offroad_check
 
