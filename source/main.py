@@ -1,64 +1,72 @@
-from mem_main import get_game_state
 import dolphin_memory_engine as DME
-from time import sleep, time
+from time import sleep
 import os
-import numpy as np
-import math
-from mesh import mesh_normalized_ray_lengths
 
-def euler_from_quaternion(x, y, z, w):
-     
-        t3 = +2.0 * (w * z + x * y)
-        t4 = +1.0 - 2.0 * (y * y + z * z)
-        yaw_z = math.atan2(t3, t4)
-     
-        return yaw_z * 57.295779513
+"""
+['MemWatch', '__all__', '__builtins__', '__cached__', '__doc__',
+'__file__', '__loader__', '__name__', '__package__', '__path__',
+'__spec__', '_dolphin_memory_engine', 'assert_hooked', 'follow_pointers',
+'get_status', 'hook', 'is_hooked', 'read_byte', 'read_bytes', 'read_double',
+'read_float', 'read_word', 'un_hook', 'write_byte', 'write_bytes', 'write_double', 'write_float', 'write_word']
+"""
 
-# Hook into Dolphin
-while not DME.is_hooked():
-    print("Not hooked..")
-    DME.hook()
-    sleep(0.2)
+clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
-while True:
+class RaceManager:
+	def isInRace():
+		return DME.read_word(0X809BD730) != 0
 
-	t0 = time()
+class Memory:
+	def __init__(self):
+		self.quaternions_address: int = self.Resolve_Address(0x809C18F8, [0x20, 0x0, 0x24, 0x90, 0x4, 0xF0])
+		self.quaternions = {"x": 0.0, "y": 0.0, "z": 0.0, "w": 0.0}
 
-	# Get game state
-	game_state = get_game_state()
+		self.boosts_address: int = self.Resolve_Address(0x809C18F8, [0xC, 0x10, 0x0, 0x10, 0x10, 0x10C])
+		self.boosts = {"miniturbo": 0.0, "shroom": 0.0, "trick": 0.0}
 
-	# In menus check
-	if game_state == None:
-		continue
+		self.completion_address: int = self.Resolve_Address(0x809BD730, [0xC, 0x0, 0xC])
+		self.completion = 0.0
 
-	# Get rotation, since raycasts are always pointing the same direction, the AI agent needs to know where it's looking towards
-	x, y, z, w = game_state["Quaternions"]
-	# MKW swaps y and z idk
-	rotation = euler_from_quaternion(x, z, y, w)
+		self.drift_address: int = self.Resolve_Address(0x809C18F8, [0xC, 0x10, 0x0, 0x10, 0x10, 0xFE])
+		self.drift = 0
 
-	full_rays, road_rays, offroad_check = mesh_normalized_ray_lengths(game_state["Current_Positions"], 100, rotation, False)
+		self.airtime_address: int = self.Resolve_Address(0x809C18F8, [0xC, 0x10, 0x0, 0x10, 0x10, 0x21A])
+		self.airtime = 0
 
-	print((time()-t0)*1000)
+	def Update(self):
+		for i, key in enumerate(["x", "y", "z", "w"]):
+			self.quaternions[key] = DME.read_float(self.boosts_address + i*4)
 
-	###
-	# Print the NORMALIZED information the agent will get
-	print(f"""XZ_SPEED: {round(game_state["XZ_Speed"]/120, 6)}
-RaceCompletion: {game_state["Race_Completion"]/4}
-MT_Charge: {game_state["MT_Charge"]}
-Countdown: {game_state["Countdown"]/4}
-Shrooms: {game_state["Shrooms"]}
-Wheelie_Frames: {round(game_state["Wheelie_Frames"]/181, 6)}
-Offroad: {offroad_check}
-Track_Rays: {full_rays}
-Road_Rays: {road_rays}
-""")
+		for i, key in enumerate(["miniturbo", "shroom", "trick"]):
+			self.boosts[key] = DME.read_float(self.boosts_address + i*4)
 
-	sleep(0.1)
+		self.completion = DME.read_float(self.completion_address)
+		self.drift = int.from_bytes(DME.read_bytes(self.drift_address, 2), byteorder='big', signed=False)
+		self.airtime = int.from_bytes(DME.read_bytes(self.airtime_address, 2), byteorder='big', signed=False)
 
-# TODO:
-"# - MT charge %age"
-"# - Race countdown, 3.0 -> 0.0 then -1"
-"# - Number of Mushrooms"
-# - Countdown till wheelie expires? Humans basically have this with the audio cue so it'll be useful.
-# - Differentiate between road/offroad/wall when doing angled raycasts/ when character is on an angled slope
-"# - Raycasts don't change rotation with player (North will always point north no matter what for example)"
+	def Resolve_Address(self, addr: int, pointers: list[int]):
+		return DME.follow_pointers(addr, pointers)
+
+def main():
+
+	while not DME.is_hooked():
+		clear()
+		print("Not hooked.")
+		DME.hook()
+		sleep(1)
+		
+	while True:
+		
+		while not RaceManager.isInRace():
+			clear()
+			print("Waiting for race...")
+			sleep(1)
+		
+		mem = Memory()
+
+		while RaceManager.isInRace():
+			mem.Update()
+			print(mem.drift, mem.airtime)
+	
+if __name__ == "__main__":
+	main()
