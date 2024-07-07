@@ -1,5 +1,5 @@
 import dolphin_memory_engine as DME
-from time import sleep
+from time import sleep, time_ns
 import os, csv, math
 import trimesh
 import numpy as np
@@ -8,9 +8,11 @@ from trimesh.ray.ray_pyembree import RayMeshIntersector
 clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
 class RayCaster:
-    def __init__(self, mesh_path, ray_amount):
-        self.mesh = trimesh.load(mesh_path, force='mesh')
-        self.collisionTester = trimesh.ray.ray_pyembree.RayMeshIntersector(self.mesh)
+    def __init__(self, full_mesh_path, road_mesh_path, ray_amount):
+        self.full_mesh = trimesh.load(full_mesh_path, force='mesh')
+        self.full_mesh_collisionTester = trimesh.ray.ray_pyembree.RayMeshIntersector(self.full_mesh)
+        self.road_mesh = trimesh.load(road_mesh_path, force='mesh')
+        self.road_mesh_collisionTester = trimesh.ray.ray_pyembree.RayMeshIntersector(self.road_mesh)
         self.ray_amount = ray_amount
         self.base_rays = self.generate_rays()
 
@@ -37,34 +39,37 @@ class RayCaster:
         rotated_rays[:, 2] = rotated_z
 
         # https://trimesh.org/trimesh.ray.ray_pyembree.html#trimesh.ray.ray_pyembree.RayMeshIntersector.intersects_location
-        ray_intersect_locations = self.collisionTester.intersects_location(ray_origins, rotated_rays, multiple_hits=False)[0]
+        full_mesh_ray_intersect_locations = self.full_mesh_collisionTester.intersects_location(ray_origins, rotated_rays, multiple_hits=False)[0]
+        road_mesh_ray_intersect_locations = self.road_mesh_collisionTester.intersects_location(ray_origins, rotated_rays, multiple_hits=False)[0]
         
-        distances = np.linalg.norm(ray_intersect_locations - player_position_divided, axis=1)
+        full_mesh_distances = (np.clip(np.linalg.norm(full_mesh_ray_intersect_locations - player_position_divided, axis=1), 0, 100.0) / 100).round(4)
+        road_mesh_distances = (np.clip(np.linalg.norm(road_mesh_ray_intersect_locations - player_position_divided, axis=1), 0, 100.0) / 100).round(4)
         
-        return distances
+        return np.array([full_mesh_distances, road_mesh_distances])
 
 class RaceManager:
     def isInRace():
         return DME.read_word(0x809BD730) != 0
     
     def getStateNormalized(mem):
-        game_state = {
-            "posX": round((mem.player.positions[0] + 17700) / 41200, 4),
-            "posZ": round((mem.player.positions[2] + 19100) / 37700, 4),
-            "yaw": round((mem.player.eular_yaw + 180) / 360, 4),
-            "mtCharge": round(mem.player.m_mtCharge / 270, 4),
-            "speed": round(mem.player.m_speed / 120, 4),
-            "raceCompletion": round(mem.player.m_raceCompletion / 4, 4),
-            "driftState": mem.player.m_driftState / 2,
-            "realTurn": round((mem.player.m_realTurn + 1) / 2, 4),
-            "hopPosY": round(mem.player.m_hopPosY / 35, 4),
-            "isAboveOffroad": int(mem.player.isAboveOffroad),
-            "isTouchingOffroad": int(mem.player.isTouchingOffroad),
-            "shroomCount": mem.player.mushroom_count,
-            "shroomTimer": round(mem.player.m_mushroomTimer/ 90, 4),
-            "isWheelie": int(mem.player.isWheelie),
-            "offroadInvincibility": int(mem.player.m_offroadInvincibility)
-            }
+        game_state = [
+            mem.player.m_countdownTimer,
+            round((mem.player.positions[0] + 17700) / 41200, 4), # posX
+            round((mem.player.positions[2] + 19100) / 37700, 4), # posZ
+            round((mem.player.eular_yaw + 180) / 360, 4), # yaw
+            round(mem.player.m_mtCharge / 270, 4), # mtCharge
+            round(mem.player.m_speed / 120, 4), # speed
+            round(mem.player.m_raceCompletion / 4, 4), # raceCompletion
+            mem.player.m_driftState / 2, # driftState
+            round((mem.player.m_realTurn + 1) / 2, 4), # realTurn
+            round(mem.player.m_hopPosY / 35, 4),
+            int(mem.player.isAboveOffroad), # isAboveOffroad
+            int(mem.player.isTouchingOffroad), # isTouchingOffroad
+            mem.player.mushroom_count, # shroomCount
+            round(mem.player.m_mushroomTimer/ 90, 4), # shroomTimer
+            int(mem.player.isWheelie), # isWheelie
+            int(mem.player.m_offroadInvincibility) # offroadInvincibility
+        ]
         
         return game_state
 
@@ -150,15 +155,17 @@ class Memory:
 
 def main():
 
-    raycaster = RayCaster('model/full_mesh.obj', 360)
+    last_frame = -1
+    ray_amount = 64
+    raycaster = RayCaster('model/full_mesh_reduced.obj', 'model/road_mesh.obj', ray_amount)
     
     while not DME.is_hooked():
         clear()
         print("Not hooked.")
         DME.hook()
         sleep(1)
-
-    mem = Memory()
+        
+        mem = Memory()
         
     while True:
         
@@ -169,40 +176,34 @@ def main():
         
         while RaceManager.isInRace():
             
-            mem.Update()
-            raycastOutput = raycaster.raycast(mem.player.positions, mem.player.eular_yaw)
-            
             clear()
-            print(RaceManager.getStateNormalized(mem))
-            print(raycastOutput)
-            
-            sleep(0.2)
-            
-            """
-            print(f"Started Capture to race_data.csv")
+            print(f"Started Capture to race_data.csv\n")
 
             with open("race_data.csv", "w", newline="") as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(["m_countdownTimer","quaternions_x", "quaternions_y", "quaternions_z", "quaternions_w",
-                                 "positions_x", "positions_y", "positions_z",
-                                 "m_mushroomTimer", "m_speed", "m_raceCompletion", "m_mtCharge", "m_hopPosY"])
+                
+                label_line = ["m_countdownTimer","posX", "posZ", "yaw", "mtCharge", "speed",
+                                 "raceCompletion", "driftState", "realTurn", "m_hopPosY", "isAboveOffroad",
+                                 "isTouchingOffroad", "shroomCount", "shroomTimer", "isWheelie", "offroadInvincibility"]
+                
+                label_line.extend([f"full_ray{i}" for i in range(1,ray_amount+1)])
+                label_line.extend([f"road_ray{i}" for i in range(1,ray_amount+1)])
+                writer.writerow(label_line)
                 
                 while mem.player.m_raceCompletion < 4.0:    
                     
                     mem.Update()
                     
-                    # Combine dictionary values and variables into a single list
-                    data_row = [mem.player.m_raceCompletion] + [mem.player.quaternions[key] for key in ["x", "y", "z", "w"]] + \
-                        [mem.player.positions[key] for key in ["x", "y", "z"]] + \
-                        [mem.player.m_mushroomTimer, mem.player.m_speed, mem.player.m_raceCompletion,
-                            mem.player.m_mtCharge, mem.player.m_hopPosY]
+                    if last_frame != mem.player.m_countdownTimer:
+                        raycastOutput = raycaster.raycast(mem.player.positions, mem.player.eular_yaw)
+                        out_arr = np.concatenate((RaceManager.getStateNormalized(mem), raycastOutput[0], raycastOutput[1]))
+
+                        writer.writerow(out_arr)
+                        last_frame = mem.player.m_countdownTimer
                     
-                    writer.writerow(data_row)
-               
             print(f"Finished writing data, exiting...")
 
             exit()
-            """
     
 if __name__ == "__main__":
     main()
