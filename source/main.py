@@ -1,23 +1,72 @@
 import dolphin_memory_engine as DME
 from time import sleep
 import os, csv, math
+import trimesh
+import numpy as np
+from trimesh.ray.ray_pyembree import RayMeshIntersector
 
 clear = lambda: os.system('cls' if os.name=='nt' else 'clear')
 
-def get_yaw(quat):
-    x = quat["x"]
-    y = quat["y"]
-    z = quat["w"]
-    w = quat["z"]
+class RayCaster:
+    def __init__(self, mesh_path, ray_amount):
+        self.mesh = trimesh.load(mesh_path, force='mesh')
+        self.collisionTester = trimesh.ray.ray_pyembree.RayMeshIntersector(self.mesh)
+        self.ray_amount = ray_amount
+        self.base_rays = self.generate_rays()
 
-    yaw = math.degrees(math.atan2(2.0 * (y * z + w * x), w * w - x * x - y * y + z * z))
+    def generate_rays(self):
+        angles = np.linspace(0, 2*np.pi, self.ray_amount, endpoint=False)
+        x = np.cos(angles)
+        z = np.sin(angles)
+        return np.stack((x, np.zeros_like(angles), z), axis=-1)
 
-    return yaw
+    def raycast(self, player_position, rotation):
+        player_position_divided = np.array(player_position) / 100
+        origin = player_position_divided.reshape(1, 3)
+        ray_origins = np.tile(origin, (self.ray_amount, 1))
 
+        # Rotate the rays
+        rotation_rad = np.radians(-rotation + 90)
+        cos_rot, sin_rot = np.cos(rotation_rad), np.sin(rotation_rad)
+        
+        rotated_x = self.base_rays[:, 0] * cos_rot - self.base_rays[:, 2] * sin_rot
+        rotated_z = self.base_rays[:, 0] * sin_rot + self.base_rays[:, 2] * cos_rot
+        
+        rotated_rays = self.base_rays.copy()
+        rotated_rays[:, 0] = rotated_x
+        rotated_rays[:, 2] = rotated_z
+
+        # https://trimesh.org/trimesh.ray.ray_pyembree.html#trimesh.ray.ray_pyembree.RayMeshIntersector.intersects_location
+        ray_intersect_locations = self.collisionTester.intersects_location(ray_origins, rotated_rays, multiple_hits=False)[0]
+        
+        distances = np.linalg.norm(ray_intersect_locations - player_position_divided, axis=1)
+        
+        return distances
 
 class RaceManager:
     def isInRace():
         return DME.read_word(0x809BD730) != 0
+    
+    def getStateNormalized(mem):
+        game_state = {
+            "posX": round((mem.player.positions[0] + 17700) / 41200, 4),
+            "posZ": round((mem.player.positions[2] + 19100) / 37700, 4),
+            "yaw": round((mem.player.eular_yaw + 180) / 360, 4),
+            "mtCharge": round(mem.player.m_mtCharge / 270, 4),
+            "speed": round(mem.player.m_speed / 120, 4),
+            "raceCompletion": round(mem.player.m_raceCompletion / 4, 4),
+            "driftState": mem.player.m_driftState / 2,
+            "realTurn": round((mem.player.m_realTurn + 1) / 2, 4),
+            "hopPosY": round(mem.player.m_hopPosY / 35, 4),
+            "isAboveOffroad": int(mem.player.isAboveOffroad),
+            "isTouchingOffroad": int(mem.player.isTouchingOffroad),
+            "shroomCount": mem.player.mushroom_count,
+            "shroomTimer": round(mem.player.m_mushroomTimer/ 90, 4),
+            "isWheelie": int(mem.player.isWheelie),
+            "offroadInvincibility": int(mem.player.m_offroadInvincibility)
+            }
+        
+        return game_state
 
 class Memory:
     class Player:
@@ -40,7 +89,7 @@ class Memory:
             
             self.quaternions = {"x": 0.0, "y": 0.0, "z": 0.0, "w": 0.0}
             self.eular_yaw = 0
-            self.positions = {"x": 0.0, "y": 0.0, "z": 0.0}
+            self.positions = [0.0, 0.0, 0.0]
             self.m_mushroomTimer = 0
             self.m_speed = 0.0
             self.m_raceCompletion = 0.0
@@ -60,10 +109,10 @@ class Memory:
         def Update(self):
             for i, key in enumerate(["x", "y", "z", "w"]):
                 self.quaternions[key] = DME.read_float(self.quaternions_address + i*4)
-            for i, key in enumerate(["x", "y", "z"]):
-                self.positions[key] = DME.read_float(self.positions_address + i*4)
+            for i in range(3):
+                self.positions[i] = DME.read_float(self.positions_address + i*4)
             
-            self.eular_yaw = get_yaw(self.quaternions)
+            self.eular_yaw = self.get_yaw(self.quaternions)
             self.m_speed = DME.read_float(self.m_speed_address)
             self.m_raceCompletion = DME.read_float(self.m_raceCompletion_address)
             self.m_mushroomTimer = int.from_bytes(DME.read_bytes(self.m_mushroomTimer_address, 2), byteorder='big', signed=False)
@@ -80,6 +129,16 @@ class Memory:
             self.isWheelie = self.m_bitfield2 & (1 << (5 - 1)) != 0
             self.m_offroadInvincibility = int.from_bytes(DME.read_bytes(self.m_offroadInvincibility_address, 2), byteorder='big', signed=False) != 0
             
+        def get_yaw(self, quat):
+            x = quat["x"]
+            y = quat["y"]
+            z = quat["w"]
+            w = quat["z"]
+
+            yaw = math.degrees(math.atan2(2.0 * (y * z + w * x), w * w - x * x - y * y + z * z))
+
+            return yaw
+            
     def __init__(self):
         self.player = Memory.Player(self)
 
@@ -91,13 +150,15 @@ class Memory:
 
 def main():
 
-    previous_time = 0
+    raycaster = RayCaster('model/full_mesh.obj', 360)
     
     while not DME.is_hooked():
         clear()
         print("Not hooked.")
         DME.hook()
         sleep(1)
+
+    mem = Memory()
         
     while True:
         
@@ -106,30 +167,14 @@ def main():
             print("Waiting for race...")
             sleep(1)
         
-        mem = Memory()
-        
         while RaceManager.isInRace():
             
             mem.Update()
+            raycastOutput = raycaster.raycast(mem.player.positions, mem.player.eular_yaw)
             
             clear()
-            print(f"""Quaternions: {mem.player.quaternions}  
-Positions: {mem.player.positions}
-eular_yaw: {mem.player.eular_yaw}
-m_speed: {mem.player.m_speed}
-m_raceCompletion: {mem.player.m_raceCompletion}
-m_mtCharge: {mem.player.m_mtCharge}
-m_driftState: {mem.player.m_driftState}
-m_realTurn: {mem.player.m_realTurn}
-m_hopPosY: {mem.player.m_hopPosY}
-m_countdownTimer: {mem.player.m_countdownTimer}
-isAboveOffroad: {mem.player.isAboveOffroad}
-isTouchingOffroad: {mem.player.isTouchingOffroad}
-Mushroom Count: {mem.player.mushroom_count}
-m_mushroomTimer: {mem.player.m_mushroomTimer}
-isWheelie: {mem.player.isWheelie}
-m_offroadInvincibility: {mem.player.m_offroadInvincibility}
-""")
+            print(RaceManager.getStateNormalized(mem))
+            print(raycastOutput)
             
             sleep(0.2)
             
